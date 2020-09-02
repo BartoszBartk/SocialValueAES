@@ -4,6 +4,7 @@ globals [
   budget ;;total budget used for payments
   social-welfare ;;social welfare given conservation level and budget
   waste ;;"wasted" budget due to "overpaying" farmers above opportunity costs
+  area-conserved ;;share of total area that is conserved
 ]
 turtles-own [
   my-patch ;;piece of land owned by each farmer
@@ -64,6 +65,7 @@ to calc-welfare
   set budget payment * count patches with [conserved? = true] ;;calculate budget needed for payments
   set social-welfare social-value * count patches with [conserved? = true] + sum [contrib-margin] of patches with [conserved? = false] - budget ;;calculate social welfare change (ceteris paribus)
   set waste sum [rent] of turtles ;;calculate the "budget waste" due to farmers being overpaid
+  set area-conserved count patches with [conserved? = true] / count patches
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -101,7 +103,7 @@ CHOOSER
 payment-variant
 payment-variant
 "basic" "welfare"
-0
+1
 
 SLIDER
 23
@@ -112,7 +114,7 @@ social-value
 social-value
 0
 20
-15.0
+20.0
 1
 1
 NIL
@@ -542,6 +544,22 @@ NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="experiment" repetitions="50" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="1"/>
+    <metric>budget</metric>
+    <metric>social-welfare</metric>
+    <metric>count patches with [conserved? = true]</metric>
+    <metric>waste</metric>
+    <enumeratedValueSet variable="payment-variant">
+      <value value="&quot;basic&quot;"/>
+      <value value="&quot;welfare&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="social-value" first="1" step="1" last="20"/>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
