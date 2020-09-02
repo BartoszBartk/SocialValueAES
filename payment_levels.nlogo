@@ -3,10 +3,12 @@ globals [
   payment ;;level of payment offered to farmers, between MEAN-COST and SOCIAL-VALUE
   budget ;;total budget used for payments
   social-welfare ;;social welfare given conservation level and budget
+  waste ;;"wasted" budget due to "overpaying" farmers above opportunity costs
 ]
 turtles-own [
   my-patch ;;piece of land owned by each farmer
   income ;;realized income from agriculture or conservation
+  rent ;;income gain from agri-environmental payment above opportunity costs
 ]
 patches-own [
   conserved? ;;Boolean, conservation status of parcel
@@ -16,9 +18,9 @@ patches-own [
 to setup
   ca
   ask patches [
-    set conserved? false
+    set conserved? false ;;no conservation at setup ("clean slate")
     set pcolor yellow
-    set contrib-margin random-normal 10 2
+    set contrib-margin random-normal 10 3 ;;arbitrary number with negligible probability of negative numbers
     sprout 1
   ]
   ask turtles [
@@ -26,7 +28,7 @@ to setup
     set my-patch patch-here
     set income 0
   ]
-  set mean-cost mean [contrib-margin] of patches
+  set mean-cost mean [contrib-margin] of patches ;;calculate mean opportunity costs of conservation
   reset-ticks
 end
 
@@ -42,6 +44,7 @@ to go
 end
 
 to cons-decision
+  ;;farmers' income maximization decision - conserve only if conservation brings more income than production
   ask turtles [
     ifelse payment >= [contrib-margin] of my-patch [
       ask my-patch [
@@ -49,15 +52,18 @@ to cons-decision
         set pcolor green
       ]
       set income payment
+      set rent payment - [contrib-margin] of my-patch
     ][
       set income [contrib-margin] of my-patch
+      set rent 0
     ]
   ]
 end
 
 to calc-welfare
-  set budget payment * count patches with [conserved? = true]
-  set social-welfare social-value * count patches with [conserved? = true] + sum [contrib-margin] of patches with [conserved? = false] - budget
+  set budget payment * count patches with [conserved? = true] ;;calculate budget needed for payments
+  set social-welfare social-value * count patches with [conserved? = true] + sum [contrib-margin] of patches with [conserved? = false] - budget ;;calculate social welfare change (ceteris paribus)
+  set waste sum [rent] of turtles ;;calculate the "budget waste" due to farmers being overpaid
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -95,7 +101,7 @@ CHOOSER
 payment-variant
 payment-variant
 "basic" "welfare"
-1
+0
 
 SLIDER
 23
@@ -176,6 +182,17 @@ MONITOR
 share conserved patches
 count patches with [conserved? = true] / count patches
 2
+1
+11
+
+MONITOR
+592
+198
+649
+243
+waste
+waste
+0
 1
 11
 
