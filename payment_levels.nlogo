@@ -34,20 +34,38 @@ to setup
 end
 
 to go
+  check-model-variant ;;select model variant
+  check-payment-variant ;;select payment variant
+  cons-decision ;;make conservation decision
+  calc-welfare ;;calcuate welfare measures
+end
+
+to check-model-variant
+  if model-variant = "basic" [
+  ]
+  if model-variant = "heter-conserv" [
+  ]
+  if model-variant = "uncertainty" [
+  ]
+  if model-variant = "result-based" [
+  ]
+  if model-variant = "beyond-max" [
+  ]
+end
+
+to check-payment-variant
   if payment-variant = "basic" [
     set payment mean-cost
   ]
   if payment-variant = "welfare" [
     set payment social-value
   ]
-  cons-decision
-  calc-welfare
 end
 
 to cons-decision
   ;;farmers' income maximization decision - conserve only if conservation brings more income than production
   ask turtles [
-    ifelse payment >= [contrib-margin] of my-patch [
+    ifelse payment > [contrib-margin] of my-patch [
       ask my-patch [
         set conserved? true
         set pcolor green
@@ -96,20 +114,20 @@ ticks
 30.0
 
 CHOOSER
-24
-135
-162
-180
+23
+113
+161
+158
 payment-variant
 payment-variant
 "basic" "welfare"
 1
 
 SLIDER
-23
+22
+168
 194
-195
-227
+201
 social-value
 social-value
 0
@@ -121,10 +139,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-25
-91
-88
-124
+24
+13
+87
+46
 NIL
 setup
 NIL
@@ -138,10 +156,10 @@ NIL
 1
 
 BUTTON
-94
-91
-157
-124
+93
+13
+156
+46
 NIL
 go
 NIL
@@ -197,6 +215,16 @@ waste
 0
 1
 11
+
+CHOOSER
+23
+58
+161
+103
+model-variant
+model-variant
+"basic" "heter-conserv" "uncertainty" "result-based" "beyond-max"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
