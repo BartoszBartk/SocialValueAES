@@ -14,6 +14,7 @@ turtles-own [
 patches-own [
   conserved? ;;Boolean, conservation status of parcel
   contrib-margin ;;contribution margin / opportunity costs of conservation
+  conserv-success ;;success of conservation effort
 ]
 
 to setup
@@ -22,6 +23,7 @@ to setup
     set conserved? false ;;no conservation at setup ("clean slate")
     set pcolor yellow
     set contrib-margin random-normal 10 3 ;;arbitrary number with negligible probability of negative numbers
+    set conserv-success false
     sprout 1
   ]
   ask turtles [
@@ -34,22 +36,19 @@ to setup
 end
 
 to go
-  check-model-variant ;;select model variant
-  check-payment-variant ;;select payment variant
-  cons-decision ;;make conservation decision
+  check-payment-variant ;;select payment rate variant (based on opportunity costs or social value)
+  check-payment-model ;;select payment model (action-based or result-based)
+  check-success ;;determine success of conservation efforts
+  issue-payment ;;issue payment dependent on conservation success
   calc-welfare ;;calcuate welfare measures
 end
 
-to check-model-variant
-  if model-variant = "basic" [
+to check-payment-model
+  if payment-model = "action-based" [
+    cons-decision ;;make conservation decision
   ]
-  if model-variant = "heter-conserv" [
-  ]
-  if model-variant = "uncertainty" [
-  ]
-  if model-variant = "result-based" [
-  ]
-  if model-variant = "beyond-max" [
+  if payment-model = "result-based" [
+    cons-decision-uncertain ;;make conservation decision under uncertainty
   ]
 end
 
@@ -65,25 +64,79 @@ end
 to cons-decision
   ;;farmers' income maximization decision - conserve only if conservation brings more income than production
   ask turtles [
-    ifelse payment > [contrib-margin] of my-patch [
+    if payment > [contrib-margin] of my-patch [
       ask my-patch [
         set conserved? true
         set pcolor green
       ]
-      set income payment
-      set rent payment - [contrib-margin] of my-patch
-    ][
-      set income [contrib-margin] of my-patch
-      set rent 0
+    ]
+  ]
+end
+
+to cons-decision-uncertain
+  ;;make conservation decision under uncertainty assuming farmers know the probability of conservation success (CONSERV-SUCCESS-P)
+  ask turtles [
+    if payment * conserv-success-p > [contrib-margin] of my-patch [
+      ask my-patch [
+        set conserved? true
+        set pcolor green
+      ]
+    ]
+  ]
+
+end
+
+to check-success
+  ;;determine whether conservation was successful dependent on probability of success (CONSERV-SUCCESS-P)
+  ask patches with [conserved? = true] [
+    if random-float 1 < conserv-success-p [
+      set conserv-success true
+    ]
+  ]
+end
+
+to issue-payment
+  ;;determine whether payment is issued
+  if payment-model = "action-based" [
+    ask turtles [
+      ifelse [conserved?] of my-patch = true [
+        set income payment
+        set rent payment - [contrib-margin] of my-patch
+      ][
+       set income [contrib-margin] of my-patch
+       set rent 0
+      ]
+    ]
+  ]
+  if payment-model = "result-based" [
+    ask turtles [
+      ifelse [conserv-success] of my-patch = true [
+        set income payment
+        set rent payment - [contrib-margin] of my-patch
+      ][
+        ifelse [conserved?] of my-patch = true [
+          set income 0
+          set rent 0
+        ][
+          set income [contrib-margin] of my-patch
+          set rent 0
+        ]
+      ]
     ]
   ]
 end
 
 to calc-welfare
-  set budget payment * count patches with [conserved? = true] ;;calculate budget needed for payments
-  set social-welfare social-value * count patches with [conserved? = true] + sum [contrib-margin] of patches with [conserved? = false] - budget ;;calculate social welfare change (ceteris paribus)
-  set waste sum [rent] of turtles ;;calculate the "budget waste" due to farmers being overpaid
-  set area-conserved count patches with [conserved? = true] / count patches
+  ;;calculate budget needed for payments
+  if payment-model = "action-based" [
+    set budget payment * count patches with [conserved? = true]
+  ]
+  ;;calculate social welfare change (ceteris paribus) based on social value of conservation (SOCIAL-VALUE)
+  set social-welfare social-value * count patches with [conserv-success = true] + sum [contrib-margin] of patches with [conserved? = false] - budget
+  ;;calculate the "budget waste" due to farmers being overpaid
+  set waste sum [rent] of turtles
+  ;;calculate share of total area that is successfully conserved
+  set area-conserved count patches with [conserv-success = true] / count patches
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -114,20 +167,20 @@ ticks
 30.0
 
 CHOOSER
-23
-113
-161
+22
 158
+160
+203
 payment-variant
 payment-variant
 "basic" "welfare"
 1
 
 SLIDER
-22
-168
-194
-201
+21
+213
+193
+246
 social-value
 social-value
 0
@@ -221,9 +274,34 @@ CHOOSER
 58
 161
 103
-model-variant
-model-variant
-"basic" "heter-conserv" "uncertainty" "result-based" "beyond-max"
+payment-model
+payment-model
+"action-based" "result-based"
+0
+
+SLIDER
+22
+254
+194
+287
+conserv-success-p
+conserv-success-p
+0
+1
+1.0
+0.01
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+22
+107
+160
+152
+behav
+behav
+"maximizer" "beyond-max"
 0
 
 @#$#@#$#@
