@@ -10,6 +10,7 @@ turtles-own [
   my-patch ;;piece of land owned by each farmer
   income ;;realized income from agriculture or conservation
   rent ;;income gain from agri-environmental payment above opportunity costs
+  wta ;; willingness to accept compensation for conservation
 ]
 patches-own [
   conserved? ;;Boolean, conservation status of parcel
@@ -31,6 +32,7 @@ to setup
     set my-patch patch-here
     set income 0
   ]
+  check-behav ;;select behavioural assumption
   set mean-cost mean [contrib-margin] of patches ;;calculate mean opportunity costs of conservation
   reset-ticks
 end
@@ -61,10 +63,28 @@ to check-payment-variant
   ]
 end
 
+to check-behav
+  ;;maximizer variant: willingness to accept equals opportunity costs for all farmers
+  if behav = "maximizer" [
+    ask turtles [
+      set wta [contrib-margin] of my-patch
+    ]
+  ]
+  ;;beyond-max variant: for maximally half of all farmers, willingness to accept exceeds opportunity costs by 10%
+  if behav = "beyond-max" [
+    ask turtles [
+      set wta [contrib-margin] of my-patch
+    ]
+    ask n-of random (0.5 * count turtles) turtles [
+      set wta (1.1 * [contrib-margin] of my-patch)
+    ]
+  ]
+end
+
 to cons-decision
   ;;farmers' income maximization decision - conserve only if conservation brings more income than production
   ask turtles [
-    if payment > [contrib-margin] of my-patch [
+    if payment > [wta] of self [
       ask my-patch [
         set conserved? true
         set pcolor green
@@ -76,14 +96,13 @@ end
 to cons-decision-uncertain
   ;;make conservation decision under uncertainty assuming farmers know the probability of conservation success (CONSERV-SUCCESS-P)
   ask turtles [
-    if payment * conserv-success-p > [contrib-margin] of my-patch [
+    if payment * conserv-success-p > [wta] of self [
       ask my-patch [
         set conserved? true
         set pcolor green
       ]
     ]
   ]
-
 end
 
 to check-success
@@ -101,7 +120,7 @@ to issue-payment
     ask turtles [
       ifelse [conserved?] of my-patch = true [
         set income payment
-        set rent payment - [contrib-margin] of my-patch
+        set rent payment - [wta] of self
       ][
        set income [contrib-margin] of my-patch
        set rent 0
@@ -112,7 +131,7 @@ to issue-payment
     ask turtles [
       ifelse [conserv-success] of my-patch = true [
         set income payment
-        set rent payment - [contrib-margin] of my-patch
+        set rent payment - [wta] of self
       ][
         ifelse [conserved?] of my-patch = true [
           set income 0
@@ -128,9 +147,7 @@ end
 
 to calc-welfare
   ;;calculate budget needed for payments
-  if payment-model = "action-based" [
-    set budget payment * count patches with [conserved? = true]
-  ]
+  set budget payment * count patches with [conserv-success = true]
   ;;calculate social welfare change (ceteris paribus) based on social value of conservation (SOCIAL-VALUE)
   set social-welfare social-value * count patches with [conserv-success = true] + sum [contrib-margin] of patches with [conserved? = false] - budget
   ;;calculate the "budget waste" due to farmers being overpaid
