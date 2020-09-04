@@ -2,29 +2,29 @@ globals [
   mean-cost ;;mean opportunity costs of conservation
   payment ;;level of payment offered to farmers, between MEAN-COST and SOCIAL-VALUE
   budget ;;total budget used for payments
-  social-welfare ;;social welfare given conservation level and budget
-  waste ;;"wasted" budget due to "overpaying" farmers above opportunity costs
-  area-conserved ;;share of total area that is conserved
+  social-welfare ;;social welfare change given conservation level and budget
+  waste ;;"wasted" budget due to "overpaying" farmers above their willingness to accept compensation for adopting conservation measures
+  area-conserved ;;share of total area that is (successfully) conserved
 ]
 turtles-own [
   my-patch ;;piece of land owned by each farmer
   income ;;realized income from agriculture or conservation
   rent ;;income gain from agri-environmental payment above opportunity costs
-  wta ;; willingness to accept compensation for conservation
+  wta ;;willingness to accept compensation for conservation
 ]
 patches-own [
   conserved? ;;Boolean, conservation status of parcel
   contrib-margin ;;contribution margin / opportunity costs of conservation
-  conserv-success ;;success of conservation effort
+  conserv-success ;;Boolean, success of conservation effort
 ]
 
 to setup
   ca
   ask patches [
     set conserved? false ;;no conservation at setup ("clean slate")
-    set pcolor yellow
-    set contrib-margin random-normal 10 3 ;;arbitrary number with negligible probability of negative numbers
     set conserv-success false
+    set pcolor yellow
+    set contrib-margin random-normal 10 3 ;;arbitrary normal distribution with negligible probability of negative numbers
     sprout 1
   ]
   ask turtles [
@@ -61,6 +61,9 @@ to check-payment-variant
   if payment-variant = "welfare" [
     set payment social-value
   ]
+  if payment-variant = "mixed" [
+    set payment (1 + random-float 1) * (social-value - mean-cost)
+  ]
 end
 
 to check-behav
@@ -95,6 +98,7 @@ end
 
 to cons-decision-uncertain
   ;;make conservation decision under uncertainty assuming farmers know the probability of conservation success (CONSERV-SUCCESS-P)
+  ;;assumption: risk neutrality
   ask turtles [
     if payment * conserv-success-p > [wta] of self [
       ask my-patch [
@@ -108,7 +112,7 @@ end
 to check-success
   ;;determine whether conservation was successful dependent on probability of success (CONSERV-SUCCESS-P)
   ask patches with [conserved? = true] [
-    if random-float 1 < conserv-success-p [
+    if random-float 1 <= conserv-success-p [
       set conserv-success true
     ]
   ]
@@ -190,8 +194,8 @@ CHOOSER
 203
 payment-variant
 payment-variant
-"basic" "welfare"
-1
+"basic" "mixed" "welfare"
+2
 
 SLIDER
 21
@@ -201,8 +205,8 @@ SLIDER
 social-value
 social-value
 0
-20
-20.0
+50
+50.0
 1
 1
 NIL
@@ -269,8 +273,8 @@ MONITOR
 139
 742
 184
-share conserved patches
-count patches with [conserved? = true] / count patches
+conserved area share
+area-conserved
 2
 1
 11
@@ -294,7 +298,7 @@ CHOOSER
 payment-model
 payment-model
 "action-based" "result-based"
-0
+1
 
 SLIDER
 22
@@ -305,7 +309,7 @@ conserv-success-p
 conserv-success-p
 0
 1
-1.0
+0.76
 0.01
 1
 NIL
@@ -319,7 +323,7 @@ CHOOSER
 behav
 behav
 "maximizer" "beyond-max"
-0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
