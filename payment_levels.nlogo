@@ -62,7 +62,7 @@ to check-payment-variant
     set payment social-value
   ]
   if payment-variant = "mixed" [
-    set payment mean-cost + random-float 0.99 * (social-value - mean-cost)
+    set payment mean-cost + mark-up * (social-value - mean-cost)
   ]
 end
 
@@ -324,6 +324,21 @@ behav
 behav
 "maximizer" "beyond-max"
 1
+
+SLIDER
+23
+294
+195
+327
+mark-up
+mark-up
+0.1
+0.5
+0.5
+0.1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
