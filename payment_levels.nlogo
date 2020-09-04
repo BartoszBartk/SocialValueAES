@@ -62,7 +62,7 @@ to check-payment-variant
     set payment social-value
   ]
   if payment-variant = "mixed" [
-    set payment (1 + random-float 1) * (social-value - mean-cost)
+    set payment mean-cost + random-float 0.99 * (social-value - mean-cost)
   ]
 end
 
