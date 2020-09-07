@@ -78,7 +78,7 @@ to check-behav
     ask turtles [
       set wta [contrib-margin] of my-patch
     ]
-    ask n-of 0.5 * count turtles turtles [
+    ask n-of 0.5 * count turtles) turtles [
       set wta (1.1 * [contrib-margin] of my-patch)
     ]
   ]
