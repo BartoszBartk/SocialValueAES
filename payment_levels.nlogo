@@ -12,6 +12,8 @@ turtles-own [
   income ;;realized income from agriculture or conservation
   rent ;;income gain from agri-environmental payment above opportunity costs
   wta ;;willingness to accept compensation for conservation
+  utility-conserv ;;utility drawn from conservation
+  utility-threshold ;;utility threshold needed to adopt conservation (based on WTA)
 ]
 patches-own [
   conserved? ;;Boolean, conservation status of parcel
@@ -99,15 +101,23 @@ end
 
 to cons-decision-uncertain
   ;;make conservation decision under uncertainty assuming farmers know the probability of conservation success (CONSERV-SUCCESS-P)
-  ;;assumption: risk neutrality
   ask turtles [
-    if payment * conserv-success-p > [wta] of self [
+    calculate-utility
+    if utility-conserv > utility-threshold [
       ask my-patch [
         set conserved? true
         set pcolor green
       ]
     ]
   ]
+end
+
+to calculate-utility
+  ;;if RISK-AVERSION = 0, risk neutrality assumption, otherwise risk aversion (Bernoulli utility function following Drechsler 2017)
+  let utility-success (payment ^ (1 - risk-aversion) - 1) / (1 - risk-aversion)
+  let utility-failure (0 ^ (1 - risk-aversion) - 1) / (1 - risk-aversion)
+  set utility-conserv utility-success * conserv-success-p + utility-failure * (1 - conserv-success-p)
+  set utility-threshold ([wta] of self ^ (1 - risk-aversion) - 1) / (1 - risk-aversion)
 end
 
 to check-success
@@ -328,7 +338,7 @@ CHOOSER
 behav
 behav
 "maximizer" "beyond-max"
-1
+0
 
 SLIDER
 23
@@ -341,6 +351,21 @@ mark-up
 0.5
 0.1
 0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+24
+338
+196
+371
+risk-aversion
+risk-aversion
+0
+0.5
+0.25
+0.01
 1
 NIL
 HORIZONTAL
