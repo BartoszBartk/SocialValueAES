@@ -101,8 +101,8 @@ end
 
 to cons-decision-uncertain
   ;;make conservation decision under uncertainty assuming farmers know the probability of conservation success (CONSERV-SUCCESS-P)
+  calculate-utility
   ask turtles [
-    calculate-utility
     if utility-conserv > utility-threshold [
       ask my-patch [
         set conserved? true
@@ -114,10 +114,11 @@ end
 
 to calculate-utility
   ;;if RISK-AVERSION = 0, risk neutrality assumption, otherwise risk aversion (Bernoulli utility function following Drechsler 2017)
-  let utility-success (payment ^ (1 - risk-aversion) - 1) / (1 - risk-aversion)
-  let utility-failure (0 ^ (1 - risk-aversion) - 1) / (1 - risk-aversion)
-  set utility-conserv utility-success * conserv-success-p + utility-failure * (1 - conserv-success-p)
-  set utility-threshold ([wta] of self ^ (1 - risk-aversion) - 1) / (1 - risk-aversion)
+  ;;THERE IS AN ERROR HERE, BUT I CAN'T FIND IT
+  ask turtles [
+    set utility-conserv ((payment ^ (1 - risk-aversion) - 1) / (1 - risk-aversion) * conserv-success-p + (0 ^ (1 - risk-aversion) - 1) / (1 - risk-aversion) * (1 - conserv-success-p))
+    set utility-threshold ((([wta] of self) ^ (1 - risk-aversion) - 1) / (1 - risk-aversion))
+  ]
 end
 
 to check-success
@@ -210,7 +211,7 @@ CHOOSER
 payment-variant
 payment-variant
 "basic" "mixed" "welfare"
-2
+0
 
 SLIDER
 21
@@ -221,7 +222,7 @@ social-value
 social-value
 0
 50
-30.0
+34.0
 1
 1
 NIL
@@ -324,7 +325,7 @@ conserv-success-p
 conserv-success-p
 0
 1
-0.48
+0.5
 0.01
 1
 NIL
@@ -338,7 +339,7 @@ CHOOSER
 behav
 behav
 "maximizer" "beyond-max"
-0
+1
 
 SLIDER
 23
@@ -349,7 +350,7 @@ mark-up
 mark-up
 0.1
 0.5
-0.1
+0.2
 0.1
 1
 NIL
@@ -364,7 +365,7 @@ risk-aversion
 risk-aversion
 0
 0.5
-0.25
+0.5
 0.01
 1
 NIL
@@ -790,6 +791,9 @@ NetLogo 6.1.1
       <value value="&quot;mixed&quot;"/>
     </enumeratedValueSet>
     <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
+    <enumeratedValueSet variable="risk-aversion">
+      <value value="0"/>
+    </enumeratedValueSet>
     <enumeratedValueSet variable="payment-model">
       <value value="&quot;action-based&quot;"/>
     </enumeratedValueSet>
@@ -808,13 +812,14 @@ NetLogo 6.1.1
     <metric>mean-cost</metric>
     <metric>mean-contrib</metric>
     <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
-    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.05" last="0.95"/>
+    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.1" last="0.9"/>
     <enumeratedValueSet variable="payment-variant">
       <value value="&quot;basic&quot;"/>
       <value value="&quot;welfare&quot;"/>
       <value value="&quot;mixed&quot;"/>
     </enumeratedValueSet>
     <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
+    <steppedValueSet variable="risk-aversion" first="0" step="0.25" last="0.5"/>
     <enumeratedValueSet variable="payment-model">
       <value value="&quot;action-based&quot;"/>
     </enumeratedValueSet>
@@ -833,13 +838,14 @@ NetLogo 6.1.1
     <metric>mean-cost</metric>
     <metric>mean-contrib</metric>
     <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
-    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.05" last="0.95"/>
+    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.1" last="0.9"/>
     <enumeratedValueSet variable="payment-variant">
       <value value="&quot;basic&quot;"/>
       <value value="&quot;welfare&quot;"/>
       <value value="&quot;mixed&quot;"/>
     </enumeratedValueSet>
     <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
+    <steppedValueSet variable="risk aversion" first="0" step="0.25" last="0.5"/>
     <enumeratedValueSet variable="payment-model">
       <value value="&quot;result-based&quot;"/>
     </enumeratedValueSet>
@@ -858,13 +864,14 @@ NetLogo 6.1.1
     <metric>mean-cost</metric>
     <metric>mean-contrib</metric>
     <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
-    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.05" last="1"/>
+    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.1" last="1"/>
     <enumeratedValueSet variable="payment-variant">
       <value value="&quot;basic&quot;"/>
       <value value="&quot;welfare&quot;"/>
       <value value="&quot;mixed&quot;"/>
     </enumeratedValueSet>
     <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
+    <steppedValueSet variable="risk-aversion" first="0" step="0.25" last="0.5"/>
     <enumeratedValueSet variable="payment-model">
       <value value="&quot;action-based&quot;"/>
       <value value="&quot;result-based&quot;"/>
