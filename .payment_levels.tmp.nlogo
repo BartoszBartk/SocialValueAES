@@ -5,6 +5,7 @@ globals [
   social-welfare ;;social welfare change given conservation level and budget
   waste ;;"wasted" budget due to "overpaying" farmers above their willingness to accept compensation for adopting conservation measures
   area-conserved ;;share of total area that is (successfully) conserved
+  mean-contrib ;;mean contribution margin of non-conserved patches
 ]
 turtles-own [
   my-patch ;;piece of land owned by each farmer
@@ -78,7 +79,7 @@ to check-behav
     ask turtles [
       set wta [contrib-margin] of my-patch
     ]
-    ask n-of 0.5 * count turtles) turtles [
+    ask n-of (0.5 * count turtles) turtles [
       set wta (1.1 * [contrib-margin] of my-patch)
     ]
   ]
@@ -158,6 +159,10 @@ to calc-welfare
   set waste sum [rent] of turtles
   ;;calculate share of total area that is successfully conserved
   set area-conserved count patches with [conserv-success = true] / count patches
+  ;;calculate mean contribution margins from non-conserved patches
+  if any? patches with [conserved? = false][
+    set mean-contrib mean [contrib-margin] of patches with [conserved? = false]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -309,7 +314,7 @@ conserv-success-p
 conserv-success-p
 0
 1
-0.76
+0.95
 0.01
 1
 NIL
@@ -334,7 +339,7 @@ mark-up
 mark-up
 0.1
 0.5
-0.5
+0.1
 0.1
 1
 NIL
@@ -687,34 +692,47 @@ NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment" repetitions="50" runMetricsEveryStep="false">
+  <experiment name="SocialValAES_v0_mixed" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="1"/>
     <metric>budget</metric>
     <metric>social-welfare</metric>
-    <metric>count patches with [conserved? = true]</metric>
     <metric>waste</metric>
+    <metric>area-conserved</metric>
+    <metric>mean-cost</metric>
+    <metric>mean-contrib</metric>
+    <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
+    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.05" last="0.95"/>
     <enumeratedValueSet variable="payment-variant">
-      <value value="&quot;basic&quot;"/>
-      <value value="&quot;welfare&quot;"/>
+      <value value="&quot;mixed&quot;"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="social-value" first="1" step="1" last="20"/>
+    <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
+    <enumeratedValueSet variable="payment-model">
+      <value value="&quot;action-based&quot;"/>
+      <value value="&quot;result-based&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="behav">
+      <value value="&quot;maximizer&quot;"/>
+      <value value="&quot;beyond-max&quot;"/>
+    </enumeratedValueSet>
   </experiment>
-  <experiment name="SocialValAES_v0" repetitions="20" runMetricsEveryStep="true">
+  <experiment name="SocialValAES_v0_wo_mixed" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
+    <timeLimit steps="1"/>
     <metric>budget</metric>
     <metric>social-welfare</metric>
     <metric>waste</metric>
     <metric>area-conserved</metric>
-    <metric>mean [wta] of turtles</metric>
-    <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
+    <metric>mean-contrib</metric>
+    <enumeratedValueSet variable="mark-up">
+      <value value="0.1"/>
+    </enumeratedValueSet>
     <steppedValueSet variable="conserv-success-p" first="0.5" step="0.05" last="0.95"/>
     <enumeratedValueSet variable="payment-variant">
       <value value="&quot;basic&quot;"/>
       <value value="&quot;welfare&quot;"/>
-      <value value="&quot;mixed&quot;"/>
     </enumeratedValueSet>
     <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
     <enumeratedValueSet variable="payment-model">

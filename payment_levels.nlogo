@@ -200,7 +200,7 @@ CHOOSER
 payment-variant
 payment-variant
 "basic" "mixed" "welfare"
-1
+2
 
 SLIDER
 21
@@ -339,7 +339,7 @@ mark-up
 mark-up
 0.1
 0.5
-0.5
+0.1
 0.1
 1
 NIL
@@ -700,6 +700,7 @@ NetLogo 6.1.1
     <metric>social-welfare</metric>
     <metric>waste</metric>
     <metric>area-conserved</metric>
+    <metric>mean-cost</metric>
     <metric>mean-contrib</metric>
     <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
     <steppedValueSet variable="conserv-success-p" first="0.5" step="0.05" last="0.95"/>
@@ -724,6 +725,7 @@ NetLogo 6.1.1
     <metric>social-welfare</metric>
     <metric>waste</metric>
     <metric>area-conserved</metric>
+    <metric>mean-cost</metric>
     <metric>mean-contrib</metric>
     <enumeratedValueSet variable="mark-up">
       <value value="0.1"/>
