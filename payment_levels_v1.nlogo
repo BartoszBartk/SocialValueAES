@@ -38,7 +38,7 @@ to setup
     set conserv false ;;no conservation at setup ("clean slate")
     set occup false ;;no occupation at setup
     set pcolor red
-    set contrib-margin random-normal 10 3 ;;arbitrary normal distribution with negligible probability of negative numbers
+    set contrib-margin random-normal 20 3 ;;arbitrary normal distribution with negligible probability of negative numbers
     set income contrib-margin
   ]
   check-behav ;;select behavioural assumption
@@ -198,7 +198,7 @@ social-value
 social-value
 0
 50
-25.0
+20.0
 1
 1
 NIL
@@ -246,7 +246,7 @@ CHOOSER
 behav
 behav
 "maximizer" "beyond-max"
-1
+0
 
 SLIDER
 23
@@ -257,7 +257,7 @@ risk-aversion
 risk-aversion
 0
 0.5
-0.5
+0.25
 0.01
 1
 NIL
@@ -272,7 +272,7 @@ n-reserved
 n-reserved
 0
 20
-10.0
+5.0
 1
 1
 NIL
@@ -287,7 +287,7 @@ prob-col
 prob-col
 0.05
 1
-0.1
+0.7
 0.05
 1
 NIL
@@ -389,7 +389,7 @@ mark-up
 mark-up
 0
 1
-0.1
+0.0
 0.05
 1
 NIL
@@ -742,166 +742,46 @@ NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="SocialValAES_v0_mixed" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="SocValAES_v1" repetitions="100" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1"/>
+    <timeLimit steps="100"/>
+    <metric>payment</metric>
+    <metric>social-value</metric>
+    <metric>mean-cost</metric>
+    <metric>mean-contrib</metric>
     <metric>budget</metric>
     <metric>social-welfare</metric>
     <metric>waste</metric>
-    <metric>area-conserved</metric>
-    <metric>mean-cost</metric>
-    <metric>mean-contrib</metric>
-    <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
-    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.05" last="0.95"/>
-    <enumeratedValueSet variable="payment-variant">
-      <value value="&quot;mixed&quot;"/>
+    <metric>area-occup</metric>
+    <enumeratedValueSet variable="prob-ext">
+      <value value="0.05"/>
+      <value value="0.5"/>
+      <value value="0.7"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
-    <enumeratedValueSet variable="payment-model">
-      <value value="&quot;action-based&quot;"/>
-      <value value="&quot;result-based&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="behav">
-      <value value="&quot;maximizer&quot;"/>
-      <value value="&quot;beyond-max&quot;"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="SocialValAES_v0_wo_mixed" repetitions="20" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="1"/>
-    <metric>budget</metric>
-    <metric>social-welfare</metric>
-    <metric>waste</metric>
-    <metric>area-conserved</metric>
-    <metric>mean-cost</metric>
-    <metric>mean-contrib</metric>
-    <enumeratedValueSet variable="mark-up">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.05" last="0.95"/>
-    <enumeratedValueSet variable="payment-variant">
-      <value value="&quot;basic&quot;"/>
-      <value value="&quot;welfare&quot;"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
-    <enumeratedValueSet variable="payment-model">
-      <value value="&quot;action-based&quot;"/>
-      <value value="&quot;result-based&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="behav">
-      <value value="&quot;maximizer&quot;"/>
-      <value value="&quot;beyond-max&quot;"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="SocialValAES_v0_basic" repetitions="20" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="1"/>
-    <metric>budget</metric>
-    <metric>social-welfare</metric>
-    <metric>waste</metric>
-    <metric>area-conserved</metric>
-    <metric>mean-cost</metric>
-    <metric>mean-contrib</metric>
-    <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
-    <enumeratedValueSet variable="conserv-success-p">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="payment-variant">
-      <value value="&quot;basic&quot;"/>
-      <value value="&quot;welfare&quot;"/>
-      <value value="&quot;mixed&quot;"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
+    <steppedValueSet variable="mark-up" first="0" step="0.1" last="1"/>
     <enumeratedValueSet variable="risk-aversion">
       <value value="0"/>
+      <value value="0.25"/>
+      <value value="0.5"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="payment-model">
-      <value value="&quot;action-based&quot;"/>
+    <enumeratedValueSet variable="prob-col">
+      <value value="0.05"/>
+      <value value="0.15"/>
+      <value value="0.7"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="behav">
-      <value value="&quot;maximizer&quot;"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="SocialValAES_v0_uncertainty" repetitions="20" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="1"/>
-    <metric>budget</metric>
-    <metric>social-welfare</metric>
-    <metric>waste</metric>
-    <metric>area-conserved</metric>
-    <metric>mean-cost</metric>
-    <metric>mean-contrib</metric>
-    <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
-    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.1" last="0.9"/>
-    <enumeratedValueSet variable="payment-variant">
-      <value value="&quot;basic&quot;"/>
-      <value value="&quot;welfare&quot;"/>
-      <value value="&quot;mixed&quot;"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
-    <steppedValueSet variable="risk-aversion" first="0" step="0.25" last="0.5"/>
-    <enumeratedValueSet variable="payment-model">
-      <value value="&quot;action-based&quot;"/>
+    <enumeratedValueSet variable="social-value">
+      <value value="10"/>
+      <value value="30"/>
+      <value value="40"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="behav">
       <value value="&quot;maximizer&quot;"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="SocialValAES_v0_results" repetitions="20" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="1"/>
-    <metric>budget</metric>
-    <metric>social-welfare</metric>
-    <metric>waste</metric>
-    <metric>area-conserved</metric>
-    <metric>mean-cost</metric>
-    <metric>mean-contrib</metric>
-    <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
-    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.1" last="0.9"/>
-    <enumeratedValueSet variable="payment-variant">
-      <value value="&quot;basic&quot;"/>
-      <value value="&quot;welfare&quot;"/>
-      <value value="&quot;mixed&quot;"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
-    <steppedValueSet variable="risk aversion" first="0" step="0.25" last="0.5"/>
-    <enumeratedValueSet variable="payment-model">
-      <value value="&quot;result-based&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="behav">
-      <value value="&quot;maximizer&quot;"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="SocialValAES_v0_behaviour" repetitions="20" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="1"/>
-    <metric>budget</metric>
-    <metric>social-welfare</metric>
-    <metric>waste</metric>
-    <metric>area-conserved</metric>
-    <metric>mean-cost</metric>
-    <metric>mean-contrib</metric>
-    <steppedValueSet variable="mark-up" first="0.1" step="0.1" last="0.5"/>
-    <steppedValueSet variable="conserv-success-p" first="0.5" step="0.1" last="1"/>
-    <enumeratedValueSet variable="payment-variant">
-      <value value="&quot;basic&quot;"/>
-      <value value="&quot;welfare&quot;"/>
-      <value value="&quot;mixed&quot;"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="social-value" first="5" step="1" last="50"/>
-    <steppedValueSet variable="risk-aversion" first="0" step="0.25" last="0.5"/>
-    <enumeratedValueSet variable="payment-model">
-      <value value="&quot;action-based&quot;"/>
-      <value value="&quot;result-based&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="behav">
       <value value="&quot;beyond-max&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="n-reserved">
+      <value value="5"/>
+      <value value="10"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
