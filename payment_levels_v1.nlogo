@@ -4,7 +4,7 @@ globals [
   budget ;;total budget used for payments
   social-welfare ;;social welfare change given conservation level and budget
   waste ;;"wasted" budget due to "overpaying" farmers above their willingness to accept compensation for adopting conservation measures
-  area-conserved ;;share of total area that is (successfully) conserved
+  area-occup ;;share of total area that is (successfully) conserved
   mean-contrib ;;mean contribution margin of non-conserved patches
 ]
 
@@ -48,7 +48,7 @@ end
 
 to go
   check-payment-variant ;;select payment rate variant (based on opportunity costs or social value)
-  cons-decision ;;make conservation decision under uncertainty
+  conserv-decision ;;make conservation decision under uncertainty
   colonize ;;colonization of patches from neighbouring patches
   issue-payment ;;issue payment dependent on conservation success
   calc-welfare ;;calcuate welfare measures
@@ -85,8 +85,8 @@ to check-behav
   ]
 end
 
-to cons-decision
-  ;;make conservation decision under uncertainty assuming farmers know the probability of conservation success (CONSERV-SUCCESS-P)
+to conserv-decision
+  ;;make conservation decision under uncertainty assuming farmers know the relevant probabilities, given calculated expected utilities of the alternative actions
   calculate-utility
   ask patches with [reserv = false] [
     ifelse utility-conserv > utility-threshold [
@@ -102,10 +102,11 @@ end
 
 to calculate-utility
   ;;if RISK-AVERSION = 0, risk neutrality assumption, otherwise risk aversion (Bernoulli utility function following Drechsler 2017)
+  ;;probability of occupation also follows Drechsler (2017)
   ask patches with [reserv = false] [
     set occup-neighb count neighbors with [occup = true]
-    let col (1 - (1 - prob-col) ^ occup-neighb)
-    set prob-occup col / (col + prob-ext)
+    let col (1 - (1 - prob-col) ^ occup-neighb) ;;calculation of the probability of occupation
+    set prob-occup col / (col + prob-ext) ;;calculation of the joint probability of occupation and extinction
     set utility-conserv (prob-occup * (payment ^ (1 - risk-aversion) - 1) / (1 - risk-aversion) + (1 - prob-occup) * (-1 / (1 - risk-aversion)))
     set utility-threshold ((wta ^ (1 - risk-aversion) - 1) / (1 - risk-aversion))
   ]
@@ -146,7 +147,7 @@ to issue-payment
     ][
         set income 0
         set rent 0
-      ]
+    ]
   ]
   ask patches with [conserv = false] [
         set income contrib-margin
@@ -162,9 +163,9 @@ to calc-welfare
   ;;calculate the "budget waste" due to farmers being overpaid
   set waste sum [rent] of patches
   ;;calculate share of total area that is successfully conserved
-  set area-conserved count patches with [occup = true] / count patches
+  set area-occup count patches with [occup = true] / count patches
   ;;calculate mean contribution margins from non-conserved patches
-  if any? patches with [conserv = false][
+  if any? patches with [conserv = false] [
     set mean-contrib mean [contrib-margin] of patches with [conserv = false]
   ]
 end
@@ -197,25 +198,25 @@ ticks
 30.0
 
 CHOOSER
-22
-158
-160
-203
+24
+110
+162
+155
 payment-variant
 payment-variant
 "basic" "mixed" "welfare"
-0
+2
 
 SLIDER
-21
-213
-193
-246
+23
+165
+195
+198
 social-value
 social-value
 0
 50
-34.0
+25.0
 1
 1
 NIL
@@ -255,65 +256,21 @@ NIL
 NIL
 1
 
-MONITOR
-591
-30
-648
-75
-NIL
-budget
-0
-1
-11
-
-MONITOR
-590
-84
-679
-129
-NIL
-social-welfare
-0
-1
-11
-
-MONITOR
-590
-139
-742
-184
-conserved area share
-area-conserved
-2
-1
-11
-
-MONITOR
-592
-198
-649
-243
-waste
-waste
-0
-1
-11
-
 CHOOSER
-22
-107
-160
-152
+24
+59
+162
+104
 behav
 behav
 "maximizer" "beyond-max"
 1
 
 SLIDER
-20
-252
-192
-285
+22
+204
+194
+237
 risk-aversion
 risk-aversion
 0
@@ -325,10 +282,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-21
-292
-193
-325
+23
+244
+195
+277
 n-reserved
 n-reserved
 0
@@ -340,10 +297,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-22
-371
-194
-404
+24
+323
+196
+356
 prob-col
 prob-col
 0.05
@@ -355,10 +312,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-21
-330
-193
-363
+23
+282
+195
+315
 prob-ext
 prob-ext
 0.01
@@ -368,6 +325,78 @@ prob-ext
 1
 NIL
 HORIZONTAL
+
+PLOT
+256
+457
+456
+607
+social-welfare
+ticks
+social-welfare
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot social-welfare"
+
+PLOT
+476
+458
+676
+608
+budget
+ticks
+budget
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot budget"
+
+PLOT
+475
+622
+675
+772
+conserved area
+ticks
+conserved area
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot area-occup"
+
+PLOT
+257
+621
+457
+771
+waste
+ticks
+waste
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot waste"
 
 @#$#@#$#@
 ## WHAT IS IT?
