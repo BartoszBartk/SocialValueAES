@@ -1,6 +1,7 @@
 globals [
   mean-cost ;;mean opportunity costs of conservation
   payment ;;level of payment offered to farmers
+  particip ;;number of participating farmers
   budget ;;total budget used for payments
   social-welfare ;;social welfare change given conservation level and budget
   waste ;;"wasted" budget due to "overpaying" farmers above their willingness to accept compensation for adopting conservation measures
@@ -42,7 +43,7 @@ to setup
     set income contrib-margin
   ]
   check-behav ;;select behavioural assumption
-  set mean-cost mean [contrib-margin] of patches ;;calculate mean opportunity costs of conservation
+  set mean-cost mean [contrib-margin] of patches with [reserv = false] ;;calculate mean opportunity costs of conservation
   set-payment ;;set payment level for the model run between opportunity costs or social value
   reset-ticks
 end
@@ -56,7 +57,11 @@ to go
 end
 
 to set-payment
-  set payment mean-cost + mark-up * (social-value - mean-cost)
+  ifelse social-value > mean-cost [
+    set payment mean-cost + mark-up * (social-value - mean-cost)
+  ][
+    set payment social-value
+  ]
 end
 
 to check-behav
@@ -148,6 +153,8 @@ to issue-payment
 end
 
 to calc-welfare
+  ;;calculate number of participating farmers
+  set particip count patches with [conserv = true]
   ;;calculate budget needed for payments
   set budget payment * count patches with [occup = true]
   ;;calculate social welfare change (ceteris paribus) based on social value of conservation (SOCIAL-VALUE)
@@ -747,7 +754,7 @@ NetLogo 6.1.1
     <go>go</go>
     <timeLimit steps="100"/>
     <metric>payment</metric>
-    <metric>social-value</metric>
+    <metric>particip</metric>
     <metric>mean-cost</metric>
     <metric>mean-contrib</metric>
     <metric>budget</metric>
