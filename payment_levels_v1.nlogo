@@ -43,11 +43,11 @@ to setup
   ]
   check-behav ;;select behavioural assumption
   set mean-cost mean [contrib-margin] of patches ;;calculate mean opportunity costs of conservation
+  set-payment ;;set payment level for the model run between opportunity costs or social value
   reset-ticks
 end
 
 to go
-  check-payment-variant ;;select payment rate variant (based on opportunity costs or social value)
   conserv-decision ;;make conservation decision under uncertainty
   colonize ;;colonization of patches from neighbouring patches
   issue-payment ;;issue payment dependent on conservation success
@@ -55,16 +55,8 @@ to go
   tick
 end
 
-to check-payment-variant
-  if payment-variant = "basic" [
-    set payment mean-cost
-  ]
-  if payment-variant = "welfare" [
-    set payment social-value
-  ]
-  if payment-variant = "mixed" [
-    set payment mean-cost + random-float 1 * (social-value - mean-cost)
-  ]
+to set-payment
+  set payment mean-cost + mark-up * (social-value - mean-cost)
 end
 
 to check-behav
@@ -197,21 +189,11 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-CHOOSER
-24
-110
-162
-155
-payment-variant
-payment-variant
-"basic" "mixed" "welfare"
-2
-
 SLIDER
 23
-165
+112
 195
-198
+145
 social-value
 social-value
 0
@@ -267,10 +249,10 @@ behav
 1
 
 SLIDER
-22
-204
-194
-237
+23
+153
+195
+186
 risk-aversion
 risk-aversion
 0
@@ -282,10 +264,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-23
-244
+22
 195
-277
+194
+228
 n-reserved
 n-reserved
 0
@@ -297,10 +279,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-24
-323
-196
-356
+22
+278
+194
+311
 prob-col
 prob-col
 0.05
@@ -313,9 +295,9 @@ HORIZONTAL
 
 SLIDER
 23
-282
+237
 195
-315
+270
 prob-ext
 prob-ext
 0.01
@@ -397,6 +379,21 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot waste"
+
+SLIDER
+23
+317
+195
+350
+mark-up
+mark-up
+0
+1
+0.1
+0.05
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
